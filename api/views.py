@@ -72,3 +72,10 @@ class AssetUploadView(APIView):
         asset = PlayerAsset(player_id=id, file=request.FILES['file'])
         asset.save()
         return Response({'assetId': asset.id, 'url': asset.file.url})
+
+class UserGreetingView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        username = request.user.username
+        return HttpResponse(f"<h1>Welcome, {username}! 🎉</h1><p>You have successfully logged in.</p>")
