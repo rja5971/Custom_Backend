@@ -5,7 +5,7 @@ from django.utils.timezone import now
 from rest_framework.parsers import MultiPartParser
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
@@ -48,7 +48,7 @@ class UserGreetingTemplateView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['username'] = self.request.user.username
+        context['email'] = self.request.user.email
         return context
 
 
@@ -58,15 +58,17 @@ class UserGreetingTemplateView(LoginRequiredMixin, TemplateView):
 @csrf_protect
 def login_user(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
+
+        user = authenticate(request, email=email, password=password)
         if user:
             login(request, user)
-            messages.success(request, "Successfully logged in!")  # ✅ Add this
-            return redirect('greet-user')
+            messages.success(request, "Successfully logged in!")
+            return redirect('greet-user')  
         else:
             messages.error(request, 'Invalid credentials')
+
     return render(request, 'login.html')
 
 
@@ -74,17 +76,26 @@ def login_user(request):
 def register_user(request):
     if request.method == 'POST':
         username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
+
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists')
+        elif User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists')
         else:
-            user = User.objects.create_user(username=username, password=password)
+            user = User.objects.create_user(username=username, email=email, password=password)
             login(request, user)
-            messages.success(request, "Successfully Signed up")  # ✅ Add this
-            return redirect('greet-user')
+            messages.success(request, "Successfully signed up!")
+            return redirect('greet-user')  
+
     return render(request, 'register.html')
 
 
+def logout_view(request):
+    logout(request)
+    messages.success(request, "You have been logged out.")
+    return redirect('login_user') 
 # ==========================
 # API Views (DRF)
 # ==========================

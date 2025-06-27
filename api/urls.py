@@ -8,6 +8,7 @@ urlpatterns = [
     path('auth/register-api/', views.RegisterView.as_view(), name='register_api'),
     path('auth/login-api/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('auth/logout-api/', views.LogoutAPIView.as_view(), name='logout_api'),
 
     # Game API routes
     path('server-time/', views.ServerTimeView.as_view()),
@@ -20,4 +21,5 @@ urlpatterns = [
     # HTML form pages
     path('auth/login/', views.login_user, name='login_user'),
     path('auth/register/', views.register_user, name='register_user'),
+    path('logout/', views.logout_view, name='logout'),
 ]
